@@ -74,7 +74,7 @@ public class MapView extends Container implements org.mapsforge.map.view.MapView
 
 		addComponentListener(new MapViewComponentListener(this));
 
-		MouseEventListener mouseEventListener = new MouseEventListener(this.model.mapViewPosition);
+		MouseEventListener mouseEventListener = new MouseEventListener(this);
 		addMouseListener(mouseEventListener);
 		addMouseMotionListener(mouseEventListener);
 		addMouseWheelListener(mouseEventListener);

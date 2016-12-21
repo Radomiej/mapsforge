@@ -172,4 +172,13 @@ public abstract class Layer {
 		onRemove();
 	}
 
+	public boolean onDragged(LatLong tapLatLong, org.mapsforge.core.model.Point layerXY,
+			org.mapsforge.core.model.Point tapXY, org.mapsforge.core.model.Point dragXY) {
+		return false;
+	}
+
+	public void onMouseRelased() {
+		
+	}
+
 }
