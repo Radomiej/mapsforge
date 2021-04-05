@@ -41,7 +41,7 @@ public class AbstractTileSourceTest {
 		}
 	}
 
-	@Test
+//	@Test
 	public void constructorTest() {
 		create(new String[] {"hostname"}, 0);
 

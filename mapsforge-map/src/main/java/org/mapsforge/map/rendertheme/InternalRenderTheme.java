@@ -14,7 +14,11 @@
  */
 package org.mapsforge.map.rendertheme;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+
+import com.google.common.io.Resources;
 
 /**
  * Enumeration of all internal rendering themes.
@@ -49,6 +53,21 @@ public enum InternalRenderTheme implements XmlRenderTheme {
 
 	@Override
 	public InputStream getRenderThemeAsStream() {
-		return getClass().getResourceAsStream(this.absolutePath + this.file);
+		return getFileStream(this.absolutePath + this.file);
+	}
+	
+	public static InputStream getFileStream(String fileName) {
+		URL resourceUrl = Resources.getResource(fileName);
+		try {
+			return Resources.asByteSource(resourceUrl).openStream();
+		} catch (IOException e) {
+			System.err.println("Asset not found: " + fileName);
+			return new InputStream() {
+				@Override
+				public int read() throws IOException {
+					return -1;
+				}
+			};
+		}
 	}
 }

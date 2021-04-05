@@ -15,8 +15,10 @@
  */
 package org.mapsforge.map.layer.download;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.zip.GZIPInputStream;
@@ -27,12 +29,17 @@ import org.mapsforge.core.graphics.TileBitmap;
 import org.mapsforge.core.util.IOUtils;
 
 class TileDownloader {
-	private static final int TIMEOUT_CONNECT = 5000;
-	private static final int TIMEOUT_READ = 10000;
+	private static final int TIMEOUT_CONNECT = 99000;
+	private static final int TIMEOUT_READ = 99000;
 
 	private static InputStream getInputStream(URLConnection urlConnection) throws IOException {
-		if ("gzip".equals(urlConnection.getContentEncoding())) {
-			return new GZIPInputStream(urlConnection.getInputStream());
+		try {
+			if ("gzip".equals(urlConnection.getContentEncoding())) {
+				return new GZIPInputStream(urlConnection.getInputStream());
+			}
+		} catch (CorruptedInputStreamException | FileNotFoundException | ConnectException ex ) {
+			System.err.println("error downloading tile: " + urlConnection);
+			throw ex;
 		}
 		return urlConnection.getInputStream();
 	}
@@ -61,17 +68,21 @@ class TileDownloader {
 	TileBitmap downloadImage() throws IOException {
 		URL url = this.downloadJob.tileSource.getTileUrl(this.downloadJob.tile);
 		URLConnection urlConnection = getURLConnection(url);
-		InputStream inputStream = getInputStream(urlConnection);
-
+		
+		InputStream inputStream = null;
 		try {
+			inputStream = getInputStream(urlConnection);
 			TileBitmap result = this.graphicFactory.createTileBitmap(inputStream, this.downloadJob.tile.tileSize,
 					this.downloadJob.hasAlpha);
 			result.setExpiration(urlConnection.getExpiration());
 			return result;
-		} catch (CorruptedInputStreamException e) {
-			// the creation of the tile bit map can fail at, at least on Android,
-			// when the connection is slow or busy, returning null here ensures that
+		} catch (CorruptedInputStreamException|FileNotFoundException|ConnectException e) {
+			// the creation of the tile bit map can fail at, at least on
+			// Android,
+			// when the connection is slow or busy, returning null here ensures
+			// that
 			// the tile will be downloaded again
+			System.err.println("Error while downloading title: " + url);
 			return null;
 		} finally {
 			IOUtils.closeQuietly(inputStream);

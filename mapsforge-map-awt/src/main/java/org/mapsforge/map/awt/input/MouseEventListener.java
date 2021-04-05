@@ -24,6 +24,8 @@ import org.mapsforge.map.util.MapViewProjection;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 
 import javax.swing.SwingUtilities;
@@ -34,6 +36,7 @@ public class MouseEventListener extends MouseAdapter {
 	private final MapView mapView;
 
 	private Point lastDragPoint;
+	private MouseMotionListener externalListener;
 
 	public MouseEventListener(MapView mapView) {
 		this.mapView = mapView;
@@ -42,7 +45,13 @@ public class MouseEventListener extends MouseAdapter {
 	}
 
 	@Override
+	public void mouseMoved(MouseEvent e) {
+		super.mouseMoved(e);
+		if(externalListener != null) externalListener.mouseMoved(e);
+	}
+	@Override
 	public void mouseDragged(MouseEvent mouseEvent) {
+		
 		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
 			Point point = mouseEvent.getPoint();
 			if (this.lastDragPoint != null) {
@@ -109,10 +118,15 @@ public class MouseEventListener extends MouseAdapter {
 			for (int i = this.mapView.getLayerManager().getLayers().size() - 1; i >= 0; --i) {
 				Layer layer = this.mapView.getLayerManager().getLayers().get(i);
 				org.mapsforge.core.model.Point layerXY = projection.toPixels(layer.getPosition());
-				if (layer.onTap(tapLatLong, layerXY, tapXY)) {
+				if (layer.onTap(tapLatLong, layerXY, tapXY) && !layer.getClass().getSimpleName().isEmpty()) {
+//					System.out.println("break on: " + i + " layer: " + layer.getClass().getSimpleName());
 					break;
 				}
 			}
 		}
+	}
+
+	public void addExternalListener(MouseMotionListener externalListener) {
+		this.externalListener = externalListener;
 	}
 }

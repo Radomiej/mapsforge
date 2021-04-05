@@ -16,7 +16,9 @@
  */
 package org.mapsforge.map.layer.overlay;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -41,6 +43,7 @@ public class Polyline extends Layer {
 	private final GraphicFactory graphicFactory;
 	private final boolean keepAligned;
 	private final List<LatLong> latLongs = new CopyOnWriteArrayList<LatLong>();
+//	private final List<LatLong> latLongs = new ArrayList<LatLong>(9999);
 	private Paint paintStroke;
 
 	/**
@@ -132,5 +135,14 @@ public class Polyline extends Layer {
 	public synchronized void setPaintStroke(Paint paintStroke) {
 		this.paintStroke = paintStroke;
 	}
+
+	@Override
+	public String toString() {
+		final int maxLen = 10;
+		return "Polyline [latLongs="
+				+ (latLongs != null ? latLongs.subList(0, Math.min(latLongs.size(), maxLen)) : null) + "]";
+	}
+	
+	
 
 }
